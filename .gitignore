@@ -1,2 +1,4 @@
 *.pem
 *.cnf
+
+.DS_Store
