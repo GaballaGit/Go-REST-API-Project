@@ -5,16 +5,30 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"restapi/internal/api/handlers"
 	mw "restapi/internal/api/middlewares"
+	"restapi/internal/repository/sqlconnect"
 	"restapi/pkg/utils"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
 
-	PORT := 8080
+	err := godotenv.Load("../../.env")
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = sqlconnect.ConnectDb()
+	if err != nil {
+		panic(err) //panic because without db, whole api wont work
+	}
+
+	PORT := os.Getenv("API_PORT")
 
 	cert := "cert.pem"
 	key := "key.pem"
@@ -45,7 +59,7 @@ func main() {
 	)
 
 	server := &http.Server{
-		Addr:      fmt.Sprintf(":%d", PORT),
+		Addr:      fmt.Sprintf(":%s", PORT),
 		Handler:   secureMux,
 		TLSConfig: tlsConfig,
 	}
@@ -56,7 +70,7 @@ func main() {
 	mux.HandleFunc("/execs/", handlers.ExecHandler)
 
 	fmt.Println("server started at port:", PORT)
-	err := server.ListenAndServeTLS(cert, key)
+	err = server.ListenAndServeTLS(cert, key)
 	if err != nil {
 		log.Fatalf("error starting server: %s", err)
 		return
