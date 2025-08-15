@@ -8,8 +8,8 @@ import (
 	"os"
 	"time"
 
-	"restapi/internal/api/handlers"
 	mw "restapi/internal/api/middlewares"
+	"restapi/internal/api/routers"
 	"restapi/internal/repository/sqlconnect"
 	"restapi/pkg/utils"
 
@@ -33,7 +33,7 @@ func main() {
 	cert := "cert.pem"
 	key := "key.pem"
 
-	mux := http.NewServeMux()
+	mux := routers.Router()
 	tlsConfig := &tls.Config{
 		MinVersion: tls.VersionTLS12,
 	}
@@ -63,11 +63,6 @@ func main() {
 		Handler:   secureMux,
 		TLSConfig: tlsConfig,
 	}
-
-	mux.HandleFunc("/", handlers.RootHandler)
-	mux.HandleFunc("/teachers/", handlers.TeacherHandler)
-	mux.HandleFunc("/students/", handlers.StudentHandler)
-	mux.HandleFunc("/execs/", handlers.ExecHandler)
 
 	fmt.Println("server started at port:", PORT)
 	err = server.ListenAndServeTLS(cert, key)
