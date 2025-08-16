@@ -30,6 +30,7 @@ func GenerateInsertQuery(table string, model interface{}) string {
 	}
 
 	fmt.Println(columns, "\n--\n", placeholders)
+	fmt.Printf("\nINSERT INTO %s (%s) VALUES (%s)", table, columns, placeholders)
 	return fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", table, columns, placeholders)
 }
 

@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"strings"
 	"sync"
 
 	"restapi/internal/models"
@@ -49,10 +48,6 @@ func isValidSortField(field string) bool {
 	return validFields[field]
 }
 
-func isValidSortOrder(order string) bool {
-	return order == "asc" || order == "desc"
-}
-
 func GetTeachersHandler(w http.ResponseWriter, r *http.Request) {
 	db, err := sqlconnect.ConnectDb()
 	if err != nil {
@@ -64,7 +59,7 @@ func GetTeachersHandler(w http.ResponseWriter, r *http.Request) {
 	query := "SELECT * FROM teachers WHERE 1=1"
 	var args []interface{}
 
-	query, args = addFilter(r, query, args)
+	query, args = addTeacherFilter(r, query, args)
 	query = sortBy(r, query)
 
 	fmt.Println(query)
@@ -102,7 +97,6 @@ func GetTeachersHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetOneTeacherHandler(w http.ResponseWriter, r *http.Request) {
-
 	idStr := r.PathValue("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -118,7 +112,7 @@ func GetOneTeacherHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(teacher)
 }
 
-func addFilter(r *http.Request, query string, args []interface{}) (string, []interface{}) {
+func addTeacherFilter(r *http.Request, query string, args []interface{}) (string, []interface{}) {
 	params := map[string]string{
 		"first_name": "first_name",
 		"last_name":  "last_name",
@@ -137,33 +131,7 @@ func addFilter(r *http.Request, query string, args []interface{}) (string, []int
 	return query, args
 }
 
-func sortBy(r *http.Request, query string) string {
-	sortParams := r.URL.Query()["sortby"]
-	if len(sortParams) > 0 {
-		query += " ORDER BY"
-		for i, param := range sortParams {
-			parts := strings.Split(param, ":")
-			fmt.Println(len(parts), parts)
-			if len(parts) != 2 {
-				continue
-			}
-			field, order := parts[0], parts[1]
-			fmt.Println(isValidSortField(field), isValidSortOrder(order))
-			if !isValidSortField(field) || !isValidSortOrder(order) {
-				continue
-			}
-			fmt.Println(field, order)
-			if i > 0 {
-				query += ","
-			}
-			query += " " + field + " " + order
-		}
-	}
-	return query
-}
-
 func AddTeachersHandler(w http.ResponseWriter, r *http.Request) {
-
 	var newTeachers []models.Teacher
 	var rawTeachers []map[string]interface{}
 

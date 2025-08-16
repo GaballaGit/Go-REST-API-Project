@@ -89,7 +89,7 @@ func PatchOneTeacher(w http.ResponseWriter, id int, updates map[string]interface
 	defer db.Close()
 
 	var existingTeacher models.Teacher
-	err = utils.PatchModel(db, "teachers", id, &existingTeacher, updates)
+	err = utils.PatchTeacherModel(db, "teachers", id, &existingTeacher, updates)
 	if err != nil {
 		return models.Teacher{}, utils.ErrorHandler(err, "error patching model")
 	}
@@ -130,7 +130,7 @@ func PatchTeachers(w http.ResponseWriter, updates []map[string]interface{}) erro
 		}
 
 		var teacherFromDb models.Teacher
-		err = utils.PatchModel(db, "teachers", id, &teacherFromDb, update)
+		err = utils.PatchTeacherModel(db, "teachers", id, &teacherFromDb, update)
 		if err != nil {
 			return utils.ErrorHandler(err, "error updating teacher struct")
 		}
