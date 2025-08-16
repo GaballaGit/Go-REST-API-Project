@@ -33,7 +33,7 @@ func main() {
 	cert := "cert.pem"
 	key := "key.pem"
 
-	mux := routers.Router()
+	mux := routers.MainRouter()
 	tlsConfig := &tls.Config{
 		MinVersion: tls.VersionTLS12,
 	}
